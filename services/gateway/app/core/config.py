@@ -9,7 +9,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
-    DATABASE_URL: str = "mysql+aiomysql://raxus:raxus_pass@mysql:3306/raxus"
+    DATABASE_URL: str = "postgresql+asyncpg://raxus:raxus_pass@localhost:5432/raxus"
     REDIS_URL: str = "redis://:raxus_redis@redis:6379/0"
 
     VAULT_URL: str = "http://vault:8200"

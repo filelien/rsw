@@ -25,7 +25,7 @@ COPY services/slo-engine/ ./slo-engine/
 COPY services/rules-engine/ ./rules-engine/
 
 # Install additional requirements for all services
-RUN pip install fastapi uvicorn sqlalchemy psycopg2-binary redis httpx python-jose passlib pydantic
+RUN pip install fastapi uvicorn sqlalchemy asyncpg psycopg2-binary redis httpx python-jose passlib pydantic
 
 # Create startup script
 RUN cat > start-api.sh << 'EOF'

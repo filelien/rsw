@@ -14,7 +14,7 @@ from email.mime.multipart import MIMEMultipart
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("raxus.notifier")
 
-DATABASE_URL = os.getenv("DATABASE_URL", "mysql+aiomysql://raxus:raxus_pass@mysql:3306/raxus")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://raxus:raxus_pass@localhost:5432/raxus")
 SMTP_HOST = os.getenv("SMTP_HOST", "smtp.gmail.com")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
 SMTP_USER = os.getenv("SMTP_USER", "")

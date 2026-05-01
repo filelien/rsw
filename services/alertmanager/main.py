@@ -12,7 +12,7 @@ import uuid, hashlib, json, httpx, redis.asyncio as aioredis, os, logging, uvico
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("raxus.alertmanager")
 
-DATABASE_URL = os.getenv("DATABASE_URL", "mysql+aiomysql://raxus:raxus_pass@mysql:3306/raxus")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://raxus:raxus_pass@localhost:5432/raxus")
 REDIS_URL = os.getenv("REDIS_URL", "redis://:raxus_redis@redis:6379/1")
 NOTIFIER_URL = os.getenv("NOTIFIER_URL", "http://notifier:8003")
 RULES_URL = os.getenv("RULES_URL", "http://rules-engine:8006")

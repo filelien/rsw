@@ -10,7 +10,7 @@ import uuid, os, logging, uvicorn, httpx, asyncio
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("raxus.slo")
 
-DATABASE_URL = os.getenv("DATABASE_URL", "mysql+aiomysql://raxus:raxus_pass@mysql:3306/raxus")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://raxus:raxus_pass@localhost:5432/raxus")
 VICTORIA_URL = os.getenv("VICTORIA_URL", "http://victoriametrics:8428")
 
 engine = create_async_engine(DATABASE_URL, pool_pre_ping=True, pool_size=5)

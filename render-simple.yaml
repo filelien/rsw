@@ -16,7 +16,7 @@ services:
         generateValue: true
       - key: NEXTAUTH_URL
         value: https://raxus.onrender.com
-    healthCheckPath: /api/health
+    healthCheckPath: /
     domains:
       - raxus.onrender.com
 

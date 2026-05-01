@@ -10,7 +10,7 @@ import uuid, os, logging, uvicorn, httpx
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger("raxus.rules")
 
-DATABASE_URL = os.getenv("DATABASE_URL", "mysql+aiomysql://raxus:raxus_pass@mysql:3306/raxus")
+DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://raxus:raxus_pass@localhost:5432/raxus")
 NOTIFIER_URL = os.getenv("NOTIFIER_URL", "http://notifier:8003")
 TASKMANAGER_URL = os.getenv("TASKMANAGER_URL", "http://taskmanager:8004")
 
