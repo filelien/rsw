@@ -1,0 +1,99 @@
+# ─── RAXUS API FOR RENDER ───────────────────────────────────────────────
+# Dockerfile optimisé pour Render avec tous les services Python combinés
+
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY services/gateway/requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy all services
+COPY services/gateway/ ./gateway/
+COPY services/alertmanager/ ./alertmanager/
+COPY services/inventory/ ./inventory/
+COPY services/notifier/ ./notifier/
+COPY services/taskmanager/ ./taskmanager/
+COPY services/slo-engine/ ./slo-engine/
+COPY services/rules-engine/ ./rules-engine/
+
+# Install additional requirements for all services
+RUN pip install fastapi uvicorn sqlalchemy psycopg2-binary redis httpx python-jose passlib pydantic
+
+# Create startup script
+RUN cat > start-api.sh << 'EOF'
+#!/bin/sh
+echo "🚀 Starting RAXUS API for Render..."
+
+# Set environment
+export ENVIRONMENT=${ENVIRONMENT:-production}
+export DATABASE_URL=${DATABASE_URL}
+export SECRET_KEY=${SECRET_KEY}
+export REDIS_URL=${DATABASE_URL}  # Use DB as cache for free plan
+
+# Function to start service
+start_service() {
+    echo "📡 Starting $1..."
+    cd $1
+    python main.py &
+    cd ..
+}
+
+# Start all microservices
+start_service "gateway"
+start_service "alertmanager"
+start_service "inventory"
+start_service "notifier"
+start_service "taskmanager"
+start_service "slo-engine"
+start_service "rules-engine"
+
+# Health check endpoint
+echo "🔍 Starting health check server..."
+cd gateway
+python -c "
+import uvicorn
+from fastapi import FastAPI
+
+app = FastAPI()
+
+@app.get('/health')
+async def health():
+    return {'status': 'healthy', 'services': ['gateway', 'alertmanager', 'inventory', 'notifier', 'taskmanager', 'slo-engine', 'rules-engine']}
+
+@app.get('/')
+async def root():
+    return {'message': 'RAXUS API - All services running', 'docs': '/docs'}
+
+if __name__ == '__main__':
+    uvicorn.run(app, host='0.0.0.0', port=10000)
+" &
+cd ..
+
+# Wait for services
+wait
+EOF
+
+RUN chmod +x start-api.sh
+
+# Health check for Render
+RUN cat > health-check.sh << 'EOF'
+#!/bin/sh
+curl -f http://localhost:10000/health > /dev/null 2>&1
+EOF
+
+RUN chmod +x health-check.sh
+
+EXPOSE 10000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD ./health-check.sh
+
+CMD ["./start-api.sh"]

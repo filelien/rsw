@@ -1,0 +1,54 @@
+# ─── RAXUS RENDER DEPLOYMENT - SIMPLE VERSION ─────────────────────────────
+# Déploie seulement les services essentiels pour le plan gratuit Render
+
+services:
+  # Frontend Next.js
+  - type: web
+    name: raxus
+    runtime: docker
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    plan: free
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://raxus.onrender.com
+      - key: NEXTAUTH_SECRET
+        generateValue: true
+      - key: NEXTAUTH_URL
+        value: https://raxus.onrender.com
+    healthCheckPath: /api/health
+    domains:
+      - raxus.onrender.com
+
+  # API Gateway avec base de données intégrée
+  - type: web
+    name: raxus-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile-render-api
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: raxus-db
+          property: connectionString
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ENVIRONMENT
+        value: production
+    healthCheckPath: /health
+    domains:
+      - raxus-api.onrender.com
+
+  # Base de données PostgreSQL
+  - type: postgres
+    name: raxus-db
+    plan: free
+    databaseName: raxus
+    ipAllowList: []
+
+# ─── NOTES ───────────────────────────────────────────────────────────────
+# 1. Utilise PostgreSQL au lieu de MySQL (plus simple sur Render)
+# 2. Combine plusieurs services en un seul pour économiser des ressources
+# 3. Redis remplacé par la base de données pour le plan gratuit
+# 4. Services non essentiels désactivés pour le plan gratuit
