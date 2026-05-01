@@ -1,14 +1,14 @@
 import axios from 'axios'
 import { getSession } from 'next-auth/react'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:10000'
 
 const api = axios.create({ baseURL: `${API_URL}/api/v1` })
 
 api.interceptors.request.use(async (config) => {
   const session = await getSession()
-  if (session?.accessToken) {
-    config.headers.Authorization = `Bearer ${session.accessToken}`
+  if ((session as any)?.accessToken) {
+    config.headers.Authorization = `Bearer ${(session as any).accessToken}`
   }
   return config
 })

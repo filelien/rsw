@@ -59,7 +59,7 @@ class Server(Base):
     status = Column(Enum("active","inactive","maintenance","decommissioned"), default="active")
     maintenance_mode = Column(Boolean, default=False)
     tags = Column(JSON)
-    metadata = Column(JSON)
+    meta_info = Column("metadata", JSON)
     last_seen = Column(DateTime)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
@@ -74,7 +74,7 @@ class Component(Base):
     version = Column(String(100))
     port = Column(Integer)
     status = Column(Enum("running","stopped","degraded","unknown"), default="unknown")
-    metadata = Column(JSON)
+    meta_info = Column("metadata", JSON)
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
@@ -266,7 +266,7 @@ async def health():
 def _dc(d): return {"id": d.id, "name": d.name, "location": d.location, "description": d.description, "tags": d.tags, "is_active": d.is_active, "created_at": str(d.created_at)}
 def _env(e): return {"id": e.id, "datacenter_id": e.datacenter_id, "name": e.name, "type": e.type, "description": e.description, "tags": e.tags, "created_at": str(e.created_at)}
 def _srv(s): return {"id": s.id, "environment_id": s.environment_id, "hostname": s.hostname, "ip_address": s.ip_address, "os_type": s.os_type, "os_version": s.os_version, "cpu_cores": s.cpu_cores, "ram_gb": float(s.ram_gb) if s.ram_gb else None, "disk_gb": float(s.disk_gb) if s.disk_gb else None, "status": s.status, "maintenance_mode": s.maintenance_mode, "tags": s.tags, "last_seen": str(s.last_seen) if s.last_seen else None, "created_at": str(s.created_at)}
-def _comp(c): return {"id": c.id, "server_id": c.server_id, "name": c.name, "type": c.type, "version": c.version, "port": c.port, "status": c.status, "metadata": c.metadata, "created_at": str(c.created_at)}
+def _comp(c): return {"id": c.id, "server_id": c.server_id, "name": c.name, "type": c.type, "version": c.version, "port": c.port, "status": c.status, "metadata": c.meta_info, "created_at": str(c.created_at)}
 
 
 if __name__ == "__main__":
